@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AeroJob Console - Distributed Job Scheduling System</title>
+  <!-- Google Fonts: Outfit & Space Grotesk -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="dark-theme">
+  <!-- Auth Screen -->
+  <div id="auth-screen" class="auth-container">
+    <div class="auth-card">
+      <div class="brand">
+        <div class="logo-glow"></div>
+        <span class="logo-text">AeroJob</span>
+        <span class="logo-sub">Console</span>
+      </div>
+      <h2 id="auth-title">Welcome to the Launchpad</h2>
+      <p id="auth-subtitle">Sign in to manage your distributed jobs</p>
+      
+      <form id="auth-form">
+        <div class="form-group">
+          <label for="auth-email">Email Address</label>
+          <input type="email" id="auth-email" required placeholder="name@company.com">
+        </div>
+        <div class="form-group">
+          <label for="auth-password">Password</label>
+          <input type="password" id="auth-password" required placeholder="••••••••">
+        </div>
+        <div class="form-group admin-role-toggle hidden" id="role-container">
+          <label for="auth-role">Role</label>
+          <select id="auth-role">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        
+        <button type="submit" id="auth-submit-btn" class="btn btn-primary btn-block">Sign In</button>
+      </form>
+      
+      <div class="auth-footer">
+        <span id="auth-toggle-text">Don't have an account?</span>
+        <a href="#" id="auth-toggle-link">Create Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard App Layout (Hidden by default) -->
+  <div id="app-layout" class="app-container hidden">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-glow mini"></div>
+        <span class="logo-text">AeroJob</span>
+      </div>
+      
+      <nav class="nav-menu">
+        <a href="#overview" class="nav-item active" data-tab="overview">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Dashboard
+        </a>
+        <a href="#jobs" class="nav-item" data-tab="jobs">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+          Job Manager
+        </a>
+        <a href="#notifications" class="nav-item" data-tab="notifications">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          Alerts
+          <span id="notif-badge" class="badge-count hidden">0</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-user">
+        <div class="user-info">
+          <div class="user-avatar" id="user-avatar-letters">U</div>
+          <div>
+            <div class="user-email" id="user-display-email">user@company.com</div>
+            <div class="user-role" id="user-display-role">User</div>
+          </div>
+        </div>
+        <button id="btn-logout" class="btn btn-icon-only" title="Logout">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <header class="app-header">
+        <div>
+          <h1 id="page-title">Dashboard Overview</h1>
+          <p class="text-muted" id="page-subtitle">Real-time distributed system performance & monitoring stats</p>
+        </div>
+        
+        <div class="header-actions">
+          <div class="system-status-pill">
+            <span class="pulse-indicator status-green"></span>
+            System: <strong id="server-status-label">ONLINE</strong>
+          </div>
+          <button id="btn-refresh" class="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            Refresh
+          </button>
+          <button id="btn-new-job" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            Submit Job
+          </button>
+        </div>
+      </header>
+
+      <!-- Overview Tab -->
+      <section id="tab-overview" class="tab-pane active">
+        <!-- Stats Cards Grid -->
+        <div class="stats-grid">
+          <div class="stats-card">
+            <div class="stats-icon bg-blue-translucent">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+            </div>
+            <div class="stats-data">
+              <div class="stats-label">Active Workers</div>
+              <div class="stats-value" id="stat-active-workers">0</div>
+            </div>
+          </div>
+          <div class="stats-card">
+            <div class="stats-icon bg-purple-translucent">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg>
+            </div>
+            <div class="stats-data">
+              <div class="stats-label">Total Jobs</div>
+              <div class="stats-value" id="stat-total-jobs">0</div>
+            </div>
+          </div>
+          <div class="stats-card">
+            <div class="stats-icon bg-green-translucent">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <div class="stats-data">
+              <div class="stats-label">Success Rate</div>
+              <div class="stats-value" id="stat-success-rate">100%</div>
+            </div>
+          </div>
+          <div class="stats-card">
+            <div class="stats-icon bg-red-translucent">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            </div>
+            <div class="stats-data">
+              <div class="stats-label">Failures (24h)</div>
+              <div class="stats-value" id="stat-failed-jobs">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-row">
+          <!-- Jobs Status Breakdown -->
+          <div class="card col-4">
+            <div class="card-header">
+              <h3 class="card-title">Job Pool Distribution</h3>
+            </div>
+            <div class="card-body">
+              <div class="distribution-list">
+                <div class="dist-item">
+                  <span class="status-badge badge-running">Running</span>
+                  <span class="dist-count" id="dist-running">0</span>
+                </div>
+                <div class="dist-item">
+                  <span class="status-badge badge-queued">Queued</span>
+                  <span class="dist-count" id="dist-queued">0</span>
+                </div>
+                <div class="dist-item">
+                  <span class="status-badge badge-completed">Completed</span>
+                  <span class="dist-count" id="dist-completed">0</span>
+                </div>
+                <div class="dist-item">
+                  <span class="status-badge badge-failed">Failed</span>
+                  <span class="dist-count" id="dist-failed">0</span>
+                </div>
+                <div class="dist-item">
+                  <span class="status-badge badge-paused">Paused</span>
+                  <span class="dist-count" id="dist-paused">0</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- System Health Details -->
+          <div class="card col-8">
+            <div class="card-header">
+              <h3 class="card-title">Launchpad Telemetry</h3>
+            </div>
+            <div class="card-body">
+              <div class="system-grid">
+                <div class="sys-item">
+                  <div class="sys-label">Node Environment</div>
+                  <div class="sys-val" id="sys-node-ver">-</div>
+                </div>
+                <div class="sys-item">
+                  <div class="sys-label">Platform Architecture</div>
+                  <div class="sys-val" id="sys-platform">-</div>
+                </div>
+                <div class="sys-item">
+                  <div class="sys-label">CPU Cores Available</div>
+                  <div class="sys-val" id="sys-cores">-</div>
+                </div>
+                <div class="sys-item">
+                  <div class="sys-label">Server Uptime</div>
+                  <div class="sys-val" id="sys-uptime">-</div>
+                </div>
+                <div class="sys-item">
+                  <div class="sys-label">Database Connection</div>
+                  <div class="sys-val text-green" id="sys-db-status">-</div>
+                </div>
+                <div class="sys-item">
+                  <div class="sys-label">Total Execution Tries</div>
+                  <div class="sys-val" id="sys-total-tries">-</div>
+                </div>
+              </div>
+              
+              <!-- Memory Usage Slider -->
+              <div class="memory-progress-container">
+                <div class="memory-labels">
+                  <span>RAM Heap Allocated</span>
+                  <strong id="sys-memory-label">0 MB / 0 MB</strong>
+                </div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" id="sys-memory-progress" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Jobs -->
+        <div class="card recent-jobs-card">
+          <div class="card-header">
+            <h3 class="card-title">Recent Job Orders</h3>
+            <button id="btn-view-all-jobs" class="btn btn-secondary btn-sm">Manage All Jobs</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table" id="recent-jobs-table">
+              <thead>
+                <tr>
+                  <th>Job ID / Name</th>
+                  <th>Task Type</th>
+                  <th>Execution Pattern</th>
+                  <th>Next Run Date</th>
+                  <th>Status</th>
+                  <th>Quick Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="6" class="text-center text-muted">No jobs submitted yet. Use "Submit Job" to queue one.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Jobs Tab -->
+      <section id="tab-jobs" class="tab-pane">
+        <!-- Search and Filter Bar -->
+        <div class="filter-bar">
+          <div class="search-input-wrapper">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="job-search" placeholder="Search jobs by name...">
+          </div>
+          <div class="filters">
+            <select id="filter-status">
+              <option value="">All Statuses</option>
+              <option value="queued">Queued</option>
+              <option value="running">Running</option>
+              <option value="completed">Completed</option>
+              <option value="failed">Failed</option>
+              <option value="paused">Paused</option>
+            </select>
+            <select id="filter-task-type">
+              <option value="">All Task Types</option>
+              <option value="http">HTTP Callback</option>
+              <option value="email">Mock Emailer</option>
+              <option value="computation">Heavy Workload</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- All Jobs Table -->
+        <div class="card">
+          <div class="table-responsive">
+            <table class="table" id="all-jobs-table">
+              <thead>
+                <tr>
+                  <th>Job ID / Name</th>
+                  <th>Type</th>
+                  <th>Task Type</th>
+                  <th>Schedule</th>
+                  <th>Status</th>
+                  <th>Retries</th>
+                  <th>Last Update</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="8" class="text-center text-muted">No jobs found.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Alerts/Notifications Tab -->
+      <section id="tab-notifications" class="tab-pane">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">System Execution Alerts</h3>
+            <button id="btn-clear-alerts" class="btn btn-secondary btn-sm hidden">Mark All as Read</button>
+          </div>
+          <div class="notifications-list" id="notifications-list">
+            <div class="text-center py-4 text-muted">No failure alerts reported.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Submit Job Modal -->
+  <div id="job-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Submit New Job Order</h3>
+        <button id="btn-close-modal" class="modal-close-btn">&times;</button>
+      </div>
+      <form id="job-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="job-name">Job Name</label>
+            <input type="text" id="job-name" required placeholder="e.g. Weekly Report Sync">
+          </div>
+
+          <div class="row">
+            <div class="form-group col-6">
+              <label for="job-type">Execution Type</label>
+              <select id="job-type" required>
+                <option value="one-time">One-time Job</option>
+                <option value="recurring">Recurring Schedule</option>
+              </select>
+            </div>
+            <div class="form-group col-6">
+              <label for="job-task-type">Task Category</label>
+              <select id="job-task-type" required>
+                <option value="http">HTTP Hook (Web Callback)</option>
+                <option value="email">Mock Dispatch (Email Log)</option>
+                <option value="computation">Heavy Compute (Fibonacci/Primes)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- HTTP Task Payload Settings -->
+          <div id="payload-http-section" class="payload-section">
+            <h4 class="section-title">HTTP Configuration</h4>
+            <div class="form-group">
+              <label for="http-url">Callback URL</label>
+              <input type="url" id="http-url" placeholder="https://api.mycompany.com/webhook">
+            </div>
+            <div class="row">
+              <div class="form-group col-4">
+                <label for="http-method">Method</label>
+                <select id="http-method">
+                  <option value="GET">GET</option>
+                  <option value="POST">POST</option>
+                  <option value="PUT">PUT</option>
+                  <option value="DELETE">DELETE</option>
+                </select>
+              </div>
+              <div class="form-group col-8">
+                <label for="http-headers">Custom Headers (JSON)</label>
+                <input type="text" id="http-headers" placeholder='{"Authorization": "Bearer key"}' value="{}">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="http-body">Request Body (JSON)</label>
+              <textarea id="http-body" rows="2" placeholder='{"event": "job_completed"}'></textarea>
+            </div>
+          </div>
+
+          <!-- Email Task Payload Settings -->
+          <div id="payload-email-section" class="payload-section hidden">
+            <h4 class="section-title">Email Details</h4>
+            <div class="form-group">
+              <label for="email-to">To (Recipient Address)</label>
+              <input type="email" id="email-to" placeholder="billing@mycompany.com">
+            </div>
+            <div class="form-group">
+              <label for="email-subject">Subject</label>
+              <input type="text" id="email-subject" placeholder="Weekly Database Status Update">
+            </div>
+            <div class="form-group">
+              <label for="email-body">Email Body (Plain Text)</label>
+              <textarea id="email-body" rows="3" placeholder="Server database maintenance complete. No issues found."></textarea>
+            </div>
+          </div>
+
+          <!-- Computation Task Payload Settings -->
+          <div id="payload-computation-section" class="payload-section hidden">
+            <h4 class="section-title">Computational Details</h4>
+            <div class="row">
+              <div class="form-group col-6">
+                <label for="comp-type">Simulation Target</label>
+                <select id="comp-type">
+                  <option value="fibonacci">Fibonacci Sequencer</option>
+                  <option value="primes">Prime Numbers Locator</option>
+                </select>
+              </div>
+              <div class="form-group col-6">
+                <label for="comp-iterations">Workload Iterations</label>
+                <input type="number" id="comp-iterations" min="1" max="10000000" value="10000" placeholder="e.g. 10000">
+              </div>
+            </div>
+          </div>
+
+          <!-- Scheduling Settings -->
+          <div class="row">
+            <div class="form-group col-6">
+              <label for="job-schedule-type">Trigger Trigger</label>
+              <select id="job-schedule-type">
+                <option value="none">Immediate (Run Once)</option>
+                <option value="interval">Time Interval (e.g. 10s)</option>
+                <option value="cron">Cron Expression (e.g. * * * * *)</option>
+              </select>
+            </div>
+            <div class="form-group col-6" id="schedule-value-container" style="display:none">
+              <label for="job-schedule-value">Schedule Timing Value</label>
+              <input type="text" id="job-schedule-value" placeholder="10s, 5m, or cron pattern">
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="form-group col-6">
+              <label for="job-retries">Max Failures Retries</label>
+              <input type="number" id="job-retries" min="0" max="10" value="3">
+            </div>
+            <div class="form-group col-6 checkbox-group">
+              <input type="checkbox" id="job-run-immediately">
+              <label for="job-run-immediately">Queue First Execution Instantly</label>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btn-cancel-job" class="btn btn-secondary">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Job</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Logs Detail Modal -->
+  <div id="logs-modal" class="modal-overlay hidden">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div>
+          <h3 id="logs-modal-title">Job Execution Logs</h3>
+          <span class="text-muted text-sm" id="logs-modal-subtitle">Job ID: -</span>
+        </div>
+        <button id="btn-close-logs-modal" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="logs-console-wrapper">
+          <div class="console-header">
+            <div class="console-dots">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+            </div>
+            <span class="console-title">Execution Console Logs</span>
+          </div>
+          <div class="console-body" id="logs-console-body">
+            <div class="console-line text-muted">Select job logs to review...</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="btn-close-logs-footer" class="btn btn-secondary">Close Console</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notification element -->
+  <div id="toast" class="toast-notification"></div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
