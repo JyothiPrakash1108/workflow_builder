@@ -91,19 +91,19 @@ erDiagram
         text id PK
         text email UNIQUE
         text password
-        text role "user/admin"
+        text role
         integer created_at
     }
     
     jobs {
         text id PK
         text name
-        text type "one-time/recurring"
-        text task_type "http/email/computation"
-        text payload "JSON"
-        text schedule_type "none/interval/cron"
+        text type
+        text task_type
+        text payload
+        text schedule_type
         text schedule_value
-        text status "queued/running/completed/failed/paused"
+        text status
         integer next_run_at
         integer retry_count
         integer max_retries
@@ -115,7 +115,7 @@ erDiagram
     job_logs {
         text id PK
         text job_id FK
-        text status "success/failed"
+        text status
         integer executed_at
         integer duration_ms
         text error_message
@@ -128,10 +128,12 @@ erDiagram
         text job_id
         text job_name
         text message
-        integer read "0/1"
+        integer read
         integer created_at
     }
 ```
+
+Enum/value notes: `role`, `type`, `task_type`, `schedule_type`, and `status` use application-defined values described in the API docs above (e.g. `role` can be `user` or `admin`).
 
 ---
 
