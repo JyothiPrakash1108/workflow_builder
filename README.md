@@ -168,3 +168,34 @@ To run the automated integration test suite that tests registering, logging in, 
 ```bash
 npm test
 ```
+
+---
+
+## Docker / Container Deployment
+
+This project can be run inside Docker for easy deployment and isolation. The repository includes a `Dockerfile` and a `docker-compose.yml` for convenience.
+
+Build the image locally:
+```bash
+docker build -t job-scheduler-backend .
+```
+
+Run the container (bind port 3000 and persist the SQLite DB to `./data`):
+```bash
+# Linux / macOS
+docker run --env-file .env -p 3000:3000 -v $(pwd)/data:/usr/src/app/data job-scheduler-backend
+
+# Windows PowerShell
+docker run --env-file .env -p 3000:3000 -v ${PWD}\data:/usr/src/app/data job-scheduler-backend
+```
+
+Or use docker-compose for a one-command startup (recommended for local development):
+```bash
+docker-compose up --build -d
+```
+
+Notes:
+- The SQLite database file is stored in the host `./data` folder and is mounted into the container at `/usr/src/app/data`.
+- Keep your `.env` file in the project root and ensure it is not committed to source control (it's included in `.dockerignore`).
+- The container exposes port `3000` by default; change `PORT` in your `.env` if needed.
+
