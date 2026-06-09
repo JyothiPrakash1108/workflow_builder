@@ -81,59 +81,62 @@ When a job fails, the scheduler checks if `retry_count < max_retries`. If yes:
 
 ## Database Schema (SQLite)
 
-```mermaid
-erDiagram
-    users ||--o{ jobs : "creates"
-    users ||--o{ notifications : "receives"
-    jobs ||--o{ job_logs : "has"
-    
-    users {
-        text id PK
-        text email UNIQUE
-        text password
-        text role
-        integer created_at
-    }
-    
-    jobs {
-        text id PK
-        text name
-        text type
-        text task_type
-        text payload
-        text schedule_type
-        text schedule_value
-        text status
-        integer next_run_at
-        integer retry_count
-        integer max_retries
-        text created_by FK
-        integer created_at
-        integer updated_at
-    }
-    
-    job_logs {
-        text id PK
-        text job_id FK
-        text status
-        integer executed_at
-        integer duration_ms
-        text error_message
-        text output
-    }
-    
-    notifications {
-        text id PK
-        text user_id FK
-        text job_id
-        text job_name
-        text message
-        integer read
-        integer created_at
-    }
+Below are the main database tables and key columns used by the application. This is provided as plain Markdown (no Mermaid) so it renders reliably.
+
+- **users**
+    - `id` TEXT PRIMARY KEY
+    - `email` TEXT UNIQUE NOT NULL
+    - `password` TEXT NOT NULL
+    - `role` TEXT (e.g. `user`, `admin`)
+    - `created_at` INTEGER (epoch ms)
+
+- **jobs**
+    - `id` TEXT PRIMARY KEY
+    - `name` TEXT NOT NULL
+    - `type` TEXT (e.g. `one-time`, `recurring`)
+    - `task_type` TEXT (e.g. `http`, `email`, `computation`)
+    - `payload` TEXT (JSON string)
+    - `schedule_type` TEXT (e.g. `none`, `interval`, `cron`)
+    - `schedule_value` TEXT
+    - `status` TEXT (e.g. `queued`, `running`, `completed`, `failed`, `paused`)
+    - `next_run_at` INTEGER (epoch ms)
+    - `retry_count` INTEGER
+    - `max_retries` INTEGER
+    - `created_by` TEXT (FK -> `users.id`)
+    - `created_at` INTEGER
+    - `updated_at` INTEGER
+
+- **job_logs**
+    - `id` TEXT PRIMARY KEY
+    - `job_id` TEXT (FK -> `jobs.id`)
+    - `status` TEXT (e.g. `success`, `failed`)
+    - `executed_at` INTEGER
+    - `duration_ms` INTEGER
+    - `error_message` TEXT
+    - `output` TEXT
+
+- **notifications**
+    - `id` TEXT PRIMARY KEY
+    - `user_id` TEXT (FK -> `users.id`)
+    - `job_id` TEXT
+    - `job_name` TEXT
+    - `message` TEXT
+    - `read` INTEGER (0/1)
+    - `created_at` INTEGER
+
+Example CREATE TABLE (simplified):
+
+```sql
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    role TEXT DEFAULT 'user',
+    created_at INTEGER NOT NULL
+);
 ```
 
-Enum/value notes: `role`, `type`, `task_type`, `schedule_type`, and `status` use application-defined values described in the API docs above (e.g. `role` can be `user` or `admin`).
+Use the above as a quick reference; full schema and constraints are implemented in `src/config/db.js`.
 
 ---
 
